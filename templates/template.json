@@ -1,0 +1,28 @@
+{
+    "builders": [
+        {
+            "type": "docker",
+            "image": "packer-ubuntu-base-node",
+            "export_path": "image.tar",
+            "pull": false
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "file",
+            "source": "/home/vagrant/.ssh/id_rsa",
+            "destination": "/tmp/id_rsa"
+        },
+        {
+            "type": "shell",
+            "inline": [
+                "mv /tmp/id_rsa ~/.ssh/id_rsa",
+                "chmod 700 ~/.ssh/id_rsa"
+            ]
+        },
+        {
+            "type": "ansible-local",
+            "playbook_file": "./test.yml"
+        }
+    ]
+}

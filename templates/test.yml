@@ -1,0 +1,15 @@
+- hosts: all
+  become: yes
+  connection: local
+  tasks:
+    - name: Download the repository with git
+      git:
+        repo: ssh://git@github.com/ravenac95/managed-key-appliance.git
+        version: feature/WS-3567-deploy-prototype-cmk
+        dest: /var/app/managed-key-appliance
+        depth: 1
+
+    - name: Install packages in the git directory
+      npm:
+        path: /var/app/managed-key-appliance
+        state: latest

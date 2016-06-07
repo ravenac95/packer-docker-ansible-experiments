@@ -1,0 +1,16 @@
+{
+    "builders": [
+        {
+            "type": "docker",
+            "image": "packer-ubuntu-base",
+            "export_path": "base-node-image.tar",
+            "pull": false
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "ansible-local",
+            "playbook_file": "./base-node.yml"
+        }
+    ]
+}

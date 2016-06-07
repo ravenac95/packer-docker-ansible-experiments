@@ -1,0 +1,18 @@
+---
+- hosts: all
+  sudo: yes
+  tasks:
+    - name: Add key for docker
+      apt_key:
+        keyserver: hkp://p80.pool.sks-keyservers.net:80
+        id: 58118E89F3A912897C070ADBF76221572C52609D
+
+    - name: add repo for docker
+      apt_repository:
+        repo: 'deb https://apt.dockerproject.org/repo ubuntu-trusty main'
+        state: present
+
+    - name: Update and upgrade
+      apt: 
+        update_cache: yes
+        upgrade: full

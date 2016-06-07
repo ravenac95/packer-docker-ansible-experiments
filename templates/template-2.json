@@ -1,0 +1,25 @@
+{
+    "variables": {
+        "ansible_host": "default",
+        "ansible_connection": "docker"
+    },
+    "builders": [
+        {
+            "type": "docker",
+            "image": "ubuntu",
+            "export_path": "image.tar",
+            "run_command":  [ "-d", "-i", "-t", "--name", "{{user `ansible_host`}}", "{{.Image}}", "/bin/bash" ]
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "ansible",
+            "playbook_file": "./test.yml",
+            "extra_arguments": [
+                "-vvv",
+                "--extra-vars",
+                "ansible_host={{user `ansible_host`}} ansible_connection={{user `ansible_connection`}}"
+            ]
+        }
+    ]
+}

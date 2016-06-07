@@ -1,0 +1,25 @@
+- hosts: all
+  become: yes
+  connection: local
+  tasks:
+    - name: Add nodejs repo key
+      sudo: yes
+      apt_key: 
+        url: 'https://deb.nodesource.com/gpgkey/nodesource.gpg.key'
+        state: 'present'
+
+    - name: Add nodejs repo 
+      sudo: yes
+      apt_repository: 
+        repo: "deb https://deb.nodesource.com/node_4.x/ xenial main"
+        update_cache: yes
+
+    - name: Install some necessary packages
+      become: yes
+      apt: 
+        name: "{{ item }}"
+        state: present 
+        update_cache: yes
+      with_items:
+        - git
+        - nodejs

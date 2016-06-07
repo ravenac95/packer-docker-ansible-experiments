@@ -1,0 +1,45 @@
+---
+- hosts: all
+  sudo: yes
+  tasks:
+    - name: Get uname -r of the current machine
+      command: uname -r
+      register: uname_r
+
+    - name: Ensure required common packages are installed (for both precise and trusty)
+      apt:
+        name: "{{ item }}"
+      with_items:
+        - vim
+        - apt-transport-https
+        - ca-certificates
+        - build-essential
+        - python-dev
+        - python-pip
+        - libffi-dev
+        - libssl-dev
+        - ruby-dev
+        - ruby
+        - git-core
+        - zip
+        - unzip
+        - "linux-image-extra-{{ uname_r.stdout }}"
+
+    - name: install docker
+      apt:
+        name: docker-engine
+
+    - name: Ensure virtualenv and virtualenv-tools are installed
+      pip:
+        name: "{{ item }}"
+      with_items:
+        - virtualenv
+        - virtualenv-tools
+        - ansible
+
+    - name: Unpack packer
+      become: yes
+      unarchive:
+        src: 'https://releases.hashicorp.com/packer/0.10.1/packer_0.10.1_linux_amd64.zip'
+        dest: /usr/local/bin
+        copy: no
