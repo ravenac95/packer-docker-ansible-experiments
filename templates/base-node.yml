@@ -3,13 +3,13 @@
   connection: local
   tasks:
     - name: Add nodejs repo key
-      sudo: yes
+      become: yes
       apt_key: 
         url: 'https://deb.nodesource.com/gpgkey/nodesource.gpg.key'
         state: 'present'
 
     - name: Add nodejs repo 
-      sudo: yes
+      become: yes
       apt_repository: 
         repo: "deb https://deb.nodesource.com/node_4.x/ xenial main"
         update_cache: yes

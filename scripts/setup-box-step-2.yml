@@ -1,12 +1,13 @@
 ---
 - hosts: all
-  sudo: yes
   tasks:
     - name: Get uname -r of the current machine
+      become: yes
       command: uname -r
       register: uname_r
 
     - name: Ensure required common packages are installed (for both precise and trusty)
+      become: yes
       apt:
         name: "{{ item }}"
       with_items:
@@ -26,10 +27,19 @@
         - "linux-image-extra-{{ uname_r.stdout }}"
 
     - name: install docker
+      become: yes
       apt:
         name: docker-engine
 
+    - name: Add current user to docker group
+      become: yes
+      user:
+        name: "{{ ansible_user_id }}"
+        append: yes
+        groups: docker
+
     - name: Ensure virtualenv and virtualenv-tools are installed
+      become: yes
       pip:
         name: "{{ item }}"
       with_items:
@@ -43,3 +53,23 @@
         src: 'https://releases.hashicorp.com/packer/0.10.1/packer_0.10.1_linux_amd64.zip'
         dest: /usr/local/bin
         copy: no
+
+    - name: Create base ubuntu docker image
+      command: "packer build template-base.json"
+      args:
+        chdir: /vagrant/templates
+
+    - name: Add ubuntu docker image to docker
+      command: "docker import base-image.tar packer-ubuntu-base:latest"
+      args:
+        chdir: /vagrant/templates
+
+    - name: Create base node docker image
+      command: "packer build template-base-node.json"
+      args:
+        chdir: /vagrant/templates
+
+    - name: Add base node docker image to docker
+      command: "docker import base-node-image.tar packer-ubuntu-base-node:latest"
+      args:
+        chdir: /vagrant/templates

@@ -1,6 +1,11 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+$fix_vmware_tools_script = <<SCRIPT
+sed -i.bak 's/answer AUTO_KMODS_ENABLED_ANSWER no/answer AUTO_KMODS_ENABLED_ANSWER yes/g' /etc/vmware-tools/locations
+sed -i 's/answer AUTO_KMODS_ENABLED no/answer AUTO_KMODS_ENABLED yes/g' /etc/vmware-tools/locations
+SCRIPT
+
 # WARNING!
 # This is the Vagrant file used for packaging. For the file used to test look
 # in the tests directory
@@ -16,41 +21,28 @@ Vagrant.configure(2) do |config|
 
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://atlas.hashicorp.com/search.
-#  config.vm.provision "shell", inline: "apt-get install -y python aptitude"
-#
-#  config.vm.provision "ansible" do |ansible|
-#    ansible.playbook = "scripts/setup-box.yml"
-#  end
-#
-#  # Install latest guest additions
-#  config.vm.provider "virtualbox" do |v|
-#    config.vm.provision "shell", inline: "apt-get install virtualbox-guest-additions-iso"
-#  end
-#
-#  config.vm.provision "reload"
+  config.vm.provision "shell", inline: "apt-get install -y python aptitude"
+
+  config.vm.provider "vmware_fusion" do |v|
+    config.vm.provision "shell", inline: $fix_vmware_tools_script
+  end
+
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "scripts/setup-box.yml"
+  end
+
+  config.vm.provision "reload"
   
   config.vm.provision "ansible" do |ansible|
     ansible.playbook = "scripts/setup-box-step-2.yml"
   end
 
-  #config.vm.box = "ubuntu/xenial64"
   config.vm.box = "puppetlabs/ubuntu-14.04-64-nocm"
-
 
   config.vm.provider "virtualbox" do |v|
     v.memory = 2048
     v.cpus = 2
-
-    path_to_disk = './.vagrant/tmp_disk.vdi'
-
-    unless File.exists?( path_to_disk )
-      # Need to have a 20G /tmp directory
-      v.customize ['createhd', '--filename', path_to_disk, '--format', 'VDI', '--size', 15 * 1024]
-      v.customize ['storageattach', :id, '--storagectl', 'IDE Controller', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', path_to_disk]
-    end
   end
-
-  #config.vm.synced_folder ".", "/vagrant/"
 
   config.vm.boot_timeout = 600
 end
