@@ -1,10 +1,10 @@
 ---
 - hosts: all
   tasks:
-    - name: Get uname -r of the current machine
+    - name: Get kernel version (uname -r) of the current machine
       become: yes
       command: uname -r
-      register: uname_r
+      register: kernel_version 
 
     - name: Ensure required common packages are installed (for both precise and trusty)
       become: yes
@@ -24,7 +24,7 @@
         - git-core
         - zip
         - unzip
-        - "linux-image-extra-{{ uname_r.stdout }}"
+        - "linux-image-extra-{{ kernel_version.stdout }}"
 
     - name: install docker
       become: yes
